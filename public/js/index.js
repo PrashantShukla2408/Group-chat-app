@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       );
       console.log(response.data);
+      alert("User signed up successfully");
       signUpStatus.innerHTML = `<p>${response.data.message}</p>`;
       signUpForm.reset();
     } catch (error) {

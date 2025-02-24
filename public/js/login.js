@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
       loginStatus.innerHTML = `<p>${response.data.message}</p>`;
       localStorage.setItem("token", response.data.token);
       loginForm.reset();
+      window.location.href = "../views/chatWindow.html";
     } catch (error) {
       alert("Invalid credentials");
       console.error(

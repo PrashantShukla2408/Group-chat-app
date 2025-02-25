@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const sendButton = document.getElementById("sendButton");
   const messageStatus = document.getElementById("messageStatus");
+  const messageContainer = document.getElementById("messageContainer");
 
   const backendURL = "http://localhost:5500";
 
@@ -29,4 +30,27 @@ document.addEventListener("DOMContentLoaded", () => {
       }</p>`;
     }
   });
+
+  async function getMessages() {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await axios.get(`${backendURL}/messages`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data.allMessages);
+      const allMessages = response.data.allMessages;
+      messageContainer.innerHTML = "";
+      allMessages.forEach((message) => {
+        const messageDiv = document.createElement("div");
+        messageDiv.innerHTML = `<p>${message.User.name} - ${message.message}</p>`;
+        messageContainer.appendChild(messageDiv);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  getMessages();
 });

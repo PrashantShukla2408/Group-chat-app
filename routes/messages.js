@@ -11,5 +11,6 @@ const router = express();
 router.post("/send", auth, messageControllers.sendMessage);
 router.get("/messages", auth, messageControllers.getMessages);
 router.get("/olderMessages", auth, messageControllers.getOlderMessages);
+router.get("/privateMessages", auth, messageControllers.getPrivateMessages);
 
 module.exports = router;

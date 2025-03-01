@@ -10,5 +10,7 @@ const router = express();
 router.post("/signup", userControllers.signup);
 router.post("/login", userControllers.login);
 router.get("/user", auth, userControllers.getUser);
+router.get("/user/:id", userControllers.getUserById);
+router.get("/allUsers", auth, userControllers.getAllUsers);
 
 module.exports = router;

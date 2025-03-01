@@ -7,11 +7,12 @@ const Message = require("../models/messageModel");
 
 exports.sendMessage = async (req, res) => {
   const userId = req.userId;
-  const message = req.body.message;
+  const { chatWithId, message } = req.body;
 
   try {
     const newMessage = await Message.create({
       UserId: userId,
+      receiverId: chatWithId,
       message: message,
     });
     res.status(201).json({
@@ -43,21 +44,31 @@ exports.getMessages = async (req, res) => {
 };
 
 exports.getOlderMessages = async (req, res) => {
-  const oldestMessageId = req.query.oldestMessageId;
+  const { oldestMessageId, chatWithId } = req.query;
   const userId = req.userId;
 
   try {
     const olderMessages = await Message.findAll({
       where: {
         messageId: { [Op.lt]: oldestMessageId },
+        [Op.or]: [
+          { UserId: userId, receiverId: chatWithId },
+          { UserId: chatWithId, receiverId: userId },
+        ],
       },
       include: [
         {
           model: User,
+          as: "sender",
+          attributes: ["name"],
+        },
+        {
+          model: User,
+          as: "receiver",
           attributes: ["name"],
         },
       ],
-      order: [["createdAt", "DESC"]],
+      order: [["messageId", "DESC"]],
       limit: 10,
     });
     console.log(olderMessages);
@@ -65,5 +76,37 @@ exports.getOlderMessages = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Error getting older messages" });
+  }
+};
+
+exports.getPrivateMessages = async (req, res) => {
+  const userId = req.userId;
+  const { chatWithId } = req.query;
+  try {
+    const privateMessages = await Message.findAll({
+      where: {
+        [Op.or]: [
+          { UserId: userId, receiverId: chatWithId },
+          { UserId: chatWithId, receiverId: userId },
+        ],
+      },
+      include: [
+        {
+          model: User,
+          as: "sender",
+          attributes: ["name"],
+        },
+        {
+          model: User,
+          as: "receiver",
+          attributes: ["name"],
+        },
+      ],
+      order: [["messageId", "ASC"]],
+    });
+    console.log(privateMessages);
+    res.status(200).json({ allMessages: privateMessages });
+  } catch (error) {
+    console.log(error);
   }
 };

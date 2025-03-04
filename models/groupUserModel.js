@@ -27,6 +27,11 @@ const GroupUser = sequelize.define(
         key: "id",
       },
     },
+    isAdmin: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
   },
   {
     indexes: [

@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const sendGroupMessageButton = document.getElementById(
     "sendGroupMessageButton"
   );
+  const adminContainer = document.getElementById("adminContainer");
 
   const backendURL = "http://localhost:5500";
 
@@ -13,6 +14,29 @@ document.addEventListener("DOMContentLoaded", async () => {
   const groupName = urlParams.get("groupName");
 
   document.getElementById("groupName").innerHTML = `${groupName}`;
+
+  const token = localStorage.getItem("token");
+
+  async function getGroupAdmin() {
+    const response = await axios.get(
+      `${backendURL}/groups/getGroupAdmin/${groupId}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    const groupAdmin = response.data.groupAdmin;
+    if (groupAdmin) {
+      adminContainer.innerHTML = `Admin: ${groupAdmin.User.name}`;
+      const userId = response.data.userId;
+      if (groupAdmin.userId === userId) {
+        isAdmin = true;
+        enableAdminPowers();
+      }
+    }
+  }
 
   async function getGroupUsers() {
     const token = localStorage.getItem("token");
@@ -90,6 +114,47 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  function enableAdminPowers() {
+    const adminActionContainer = document.createElement("div");
+    adminActionContainer.innerHTML = `
+    <button id="editGroupButton">Edit Group</button>
+    <button id="changeGroupAdminButton">Change Group Admin</button>
+    <button id="deleteGroupButton">Delete Group</button>
+    `;
+    adminContainer.appendChild(adminActionContainer);
+    document
+      .getElementById("editGroupButton")
+      .addEventListener("click", async () => {
+        window.location.href = `../views/editGroup.html?groupId=${groupId}&groupName=${groupName}`;
+      });
+    document
+      .getElementById("changeGroupAdminButton")
+      .addEventListener("click", () => {
+        window.location.href = `../views/changeGroupAdmin.html?groupId=${groupId}&groupName=${groupName}`;
+      });
+    document
+      .getElementById("deleteGroupButton")
+      .addEventListener("click", async () => {
+        try {
+          const response = await axios.delete(
+            `${backendURL}/groups/deleteGroup/${groupId}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          console.log(response.data);
+          alert("Group deleted successfully");
+          window.location.href = "../views/chatWith.html";
+        } catch (error) {
+          console.error(error);
+        }
+      });
+  }
+
   getGroupUsers();
   getGroupMessages();
+  getGroupAdmin();
 });

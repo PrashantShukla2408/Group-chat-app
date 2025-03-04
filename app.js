@@ -45,6 +45,9 @@ Group.belongsToMany(User, { through: GroupUser, foreignKey: "groupId" });
 User.hasMany(GroupMessage, { foreignKey: "senderId" });
 GroupMessage.belongsTo(User, { as: "sender", foreignKey: "senderId" });
 
+GroupUser.belongsTo(User, { foreignKey: "userId" });
+User.hasMany(GroupUser, { foreignKey: "userId" });
+
 Group.hasMany(GroupMessage, { foreignKey: "groupId" });
 GroupMessage.belongsTo(Group, { as: "Group", foreignKey: "groupId" });
 
